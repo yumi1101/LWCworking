@@ -1,0 +1,15 @@
+# Salesforce DX
+.sfdx/
+.sf/
+.localdevserver/
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+
+# Logs & temp
+logs/
+coverage/
+tmp/
