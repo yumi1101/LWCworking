@@ -1,0 +1,64 @@
+<template>
+    <lightning-card title="為替レート" icon-name="utility:currency">
+        <div class="panel">
+            <div class="inputs">
+                <lightning-combobox
+                    name="base"
+                    label="基軸通貨 (Base)"
+                    value={baseCcy}
+                    options={currencyOptions}
+                    onchange={handleBaseChange}
+                    required
+                ></lightning-combobox>
+
+                <lightning-combobox
+                    name="quote"
+                    label="相手通貨 (Quote)"
+                    value={quoteCcy}
+                    options={currencyOptions}
+                    onchange={handleQuoteChange}
+                    required
+                ></lightning-combobox>
+
+                <lightning-input
+                    type="number"
+                    label="金額 (任意)"
+                    value={amountInput}
+                    step="0.01"
+                    onchange={handleAmountChange}
+                ></lightning-input>
+            </div>
+
+            <div class="actions">
+                <lightning-button
+                    variant="brand"
+                    label="取得"
+                    onclick={handleFetch}
+                    disabled={isFetchDisabled}
+                ></lightning-button>
+                <lightning-button
+                    variant="neutral"
+                    label="クリア"
+                    onclick={handleClear}
+                    disabled={loading}
+                ></lightning-button>
+            </div>
+
+            <template if:true={loading}>
+                <div class="spinner">
+                    <lightning-spinner size="small" alternative-text="Loading"></lightning-spinner>
+                </div>
+            </template>
+
+            <template if:true={hasResult}>
+                <div class="results">
+                    <p class="rate">{rateDisplay}</p>
+                    <template if:true={hasAmount}>
+                        <p class="converted">{convertedDisplay}</p>
+                    </template>
+                    <p class="date">取得日: {rateDate}</p>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>
