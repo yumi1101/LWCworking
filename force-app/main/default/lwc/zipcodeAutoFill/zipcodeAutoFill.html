@@ -1,0 +1,49 @@
+<template>
+    <lightning-card title="住所検索（郵便番号→自動入力）" icon-name="utility:search">
+        <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                <lightning-input
+                    type="text"
+                    label="郵便番号"
+                    name="postal"
+                    value={postal}
+                    placeholder="例）100-0005"
+                    message-when-pattern-mismatch="郵便番号は 123-4567 または 1234567 の形式"
+                    pattern="^\d{3}-?\d{4}$"
+                    onchange={handlePostalChange}>
+                </lightning-input>
+            </div>
+
+            <template if:true={hasOptions}>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                    <lightning-combobox
+                        label="候補"
+                        value={selectedKey}
+                        options={options}
+                        placeholder="候補を選択"
+                        onchange={handleSelect}>
+                    </lightning-combobox>
+                </div>
+            </template>
+
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                <lightning-input label="都道府県" value={prefecture} data-field="prefecture" onchange={handleManualEdit}></lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                <lightning-input label="市区町村" value={city} data-field="city" onchange={handleManualEdit}></lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                <lightning-input label="町域" value={town} data-field="town" onchange={handleManualEdit}></lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-1">
+                <lightning-input label="丁目・番地・建物名など（任意）" value={street} data-field="street" onchange={handleManualEdit}></lightning-input>
+            </div>
+        </div>
+
+        <template if:true={loading}>
+            <div class="spinner">
+                <lightning-spinner alternative-text="検索中"></lightning-spinner>
+            </div>
+        </template>
+    </lightning-card>
+</template>
