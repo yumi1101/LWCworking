@@ -28,7 +28,11 @@ export default class CompanySuggestPanel extends LightningElement {
 		this.loading = true;
 		try {
 			const res = await searchCompanies({ query: q, jurisdictionOpt: null, limitOpt: 10 });
-			this.candidates = res || [];
+			// add a preformatted statusLabel to avoid inline expressions in template
+			this.candidates = (res || []).map(candidate => {
+				const statusLabel = candidate.status ? ' • ' + candidate.status : '';
+				return Object.assign({}, candidate, { statusLabel });
+			});
 			this.selectedIndex = this.candidates.length ? 0 : undefined;
 			if (!this.candidates.length) {
 				// show nothing but not an error

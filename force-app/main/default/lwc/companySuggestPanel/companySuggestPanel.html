@@ -11,9 +11,9 @@
 				<template if:true={candidates.length}>
 					<ul class="slds-list_dotted slds-m-top_small">
 						<template for:each={candidates} for:item="cand" for:index="idx">
-							<li key={cand.companyNumber} data-idx={idx} class="slds-p-vertical_x-small" onclick={handleSelect} data-idx={idx}>
+							<li key={cand.companyNumber} data-idx={idx} class="slds-p-vertical_x-small" onclick={handleSelect}>
 								<strong>{cand.name}</strong>
-								<div class="slds-text-body_small">{cand.jurisdictionCode} • {cand.companyNumber} {cand.status ? '• ' + cand.status : ''}</div>
+								<div class="slds-text-body_small">{cand.jurisdictionCode} • {cand.companyNumber}{cand.statusLabel}</div>
 							</li>
 						</template>
 					</ul>

@@ -15,9 +15,9 @@ public with sharing class CompanySuggestService {
             return new List<CompanyCandidate>();
         }
 
-        Integer limit = (limitOpt == null) ? 10 : Math.max(1, Math.min(50, limitOpt));
+        Integer perPage = (limitOpt == null) ? 10 : Math.max(1, Math.min(50, limitOpt));
         String q = EncodingUtil.urlEncode(query.trim(), 'UTF-8');
-        String endpoint = 'callout:OpenCorporates/v0.4/companies/search?q=' + q + '&per_page=' + String.valueOf(limit);
+        String endpoint = 'callout:OpenCorporates/v0.4/companies/search?q=' + q + '&per_page=' + String.valueOf(perPage);
         if (!String.isBlank(jurisdictionOpt)) {
             endpoint += '&jurisdiction_code=' + EncodingUtil.urlEncode(jurisdictionOpt, 'UTF-8');
         }
