@@ -14,6 +14,7 @@ export default class CompanySuggestPanel extends LightningElement {
 
 	handleInput(e) {
 		// 入力値を保持し、前回の検索予約があればキャンセルする
+		console.log('[companySuggestPanel] handleInput called, event:', e);
 		this.query = e.target.value || '';
 		console.log('[companySuggestPanel] handleInput - query set to:', this.query);
 		clearTimeout(this.timer);
