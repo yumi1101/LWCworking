@@ -15,27 +15,38 @@ export default class CompanySuggestPanel extends LightningElement {
 	handleInput(e) {
 		// 入力値を保持し、前回の検索予約があればキャンセルする
 		this.query = e.target.value || '';
+		console.log('[companySuggestPanel] handleInput - query set to:', this.query);
 		clearTimeout(this.timer);
 		// 実質2文字未満のときは候補を消して検索しない
-		if ((this.query || '').replace(/\s+/g, '').length < MIN_CHARS) {
+		const trimmedLength = (this.query || '').replace(/\s+/g, '').length;
+		console.log('[companySuggestPanel] trimmed length:', trimmedLength, 'MIN_CHARS:', MIN_CHARS);
+		if (trimmedLength < MIN_CHARS) {
+			console.log('[companySuggestPanel] below MIN_CHARS, clearing candidates');
 			this.candidates = [];
 			return;
 		}
 		// 入力途中の連続呼び出しを避けるため、少し待ってから検索する
+		console.log('[companySuggestPanel] setting timeout for doSearch');
 		this.timer = setTimeout(() => this.doSearch(), DEBOUNCE_MS);
 	}
 
 	async doSearch() {
 		const q = this.query;
+		console.log('[companySuggestPanel] doSearch started with query:', q);
 		// クライアント側でも最終的な文字数ガードを行う
-		if (!q || q.trim().length < MIN_CHARS) return;
+		if (!q || q.trim().length < MIN_CHARS) {
+			console.log('[companySuggestPanel] query too short or empty, returning');
+			return;
+		}
 
         
 
 		// --- Mock mode for local testing ---
 		// ユーザが 'test' を入力するか 'mock:...' で始めるとダミー応答を返す
 		const qTrim = q.trim();
+		console.log('[companySuggestPanel] qTrim:', qTrim, 'toLowerCase:', qTrim.toLowerCase());
 		if (qTrim.toLowerCase() === 'test' || qTrim.toLowerCase().startsWith('mock:')) {
+			console.log('[companySuggestPanel] Mock mode triggered!');
 			const seed = qTrim.toLowerCase().startsWith('mock:') ? qTrim.substring(5).trim() : qTrim;
 			this.candidates = [
 				{ name: `Mock Co ${seed} A`, jurisdictionCode: 'jp', companyNumber: 'MCK-001', status: 'active', rawAddress: 'Tokyo', source: 'Mock', statusLabel: ' • active' },
@@ -43,9 +54,11 @@ export default class CompanySuggestPanel extends LightningElement {
 				{ name: `Mock Co ${seed} C`, jurisdictionCode: 'us_ca', companyNumber: 'MCK-003', status: null, rawAddress: 'San Francisco', source: 'Mock', statusLabel: '' }
 			];
 			this.selectedIndex = this.candidates.length ? 0 : undefined;
+			console.log('[companySuggestPanel] Mock candidates set:', this.candidates);
 			// show a toast so tester knows mock mode was used
 			this.toast('Mock data', `Mock results for "${seed}" loaded`, 'info');
 			this.loading = false;
+			console.log('[companySuggestPanel] Mock mode complete, returning');
 			return;
 		}
 		this.loading = true;
