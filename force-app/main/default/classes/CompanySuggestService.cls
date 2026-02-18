@@ -1,5 +1,6 @@
 public with sharing class CompanySuggestService {
 
+    // LWCへ返す会社候補DTO
     public class CompanyCandidate {
         @AuraEnabled public String name;
         @AuraEnabled public String jurisdictionCode;
@@ -11,17 +12,21 @@ public with sharing class CompanySuggestService {
 
     @AuraEnabled(cacheable=false)
     public static List<CompanyCandidate> searchCompanies(String query, String jurisdictionOpt, Integer limitOpt) {
+        // 入力不足の検索は外部APIを呼ばず空配列を返す
         if (String.isBlank(query) || query.trim().length() < 2) {
             return new List<CompanyCandidate>();
         }
 
+        // 取得件数は1〜50件に正規化し、デフォルトは10件
         Integer perPage = (limitOpt == null) ? 10 : Math.max(1, Math.min(50, limitOpt));
+        // 検索条件をURLエンコードしてOpenCorporates検索エンドポイントを構築
         String q = EncodingUtil.urlEncode(query.trim(), 'UTF-8');
         String endpoint = 'callout:OpenCorporates/v0.4/companies/search?q=' + q + '&per_page=' + String.valueOf(perPage);
         if (!String.isBlank(jurisdictionOpt)) {
             endpoint += '&jurisdiction_code=' + EncodingUtil.urlEncode(jurisdictionOpt, 'UTF-8');
         }
 
+        // 外部API呼び出しのHTTPリクエストを準備
         HttpRequest req = new HttpRequest();
         req.setMethod('GET');
         req.setEndpoint(endpoint);
@@ -32,14 +37,16 @@ public with sharing class CompanySuggestService {
         try {
             res = http.send(req);
         } catch (Exception e) {
+            // 詳細は隠し、画面向けに扱いやすいメッセージで返す
             throw new AuraHandledException('通信に失敗しました。');
         }
 
+        // 正常応答(200)以外は検索失敗として通知
         if (res.getStatusCode() != 200) {
             throw new AuraHandledException('検索に失敗しました。(' + res.getStatusCode() + ')');
         }
 
-        // parse
+        // JSONを段階的に辿ってcompanies配列を取得
         Object parsed = JSON.deserializeUntyped(res.getBody());
         if (!(parsed instanceof Map<String, Object>)) {
             return new List<CompanyCandidate>();
@@ -50,11 +57,12 @@ public with sharing class CompanySuggestService {
         if (!results.containsKey('companies')) return new List<CompanyCandidate>();
         List<Object> companies = (List<Object>) results.get('companies');
 
+        // APIレスポンスをLWC向けDTOへ変換
         List<CompanyCandidate> out = new List<CompanyCandidate>();
         for (Object o : companies) {
             if (!(o instanceof Map<String, Object>)) continue;
             Map<String, Object> companyWrap = (Map<String, Object>) o;
-            // companyWrap usually has key 'company'
+            // OpenCorporatesの各要素は通常 { "company": {...} } 形式
             Map<String, Object> comp = (Map<String, Object>) companyWrap.get('company');
             if (comp == null) continue;
             CompanyCandidate c = new CompanyCandidate();
@@ -62,11 +70,12 @@ public with sharing class CompanySuggestService {
             c.jurisdictionCode = (String) comp.get('jurisdiction_code');
             c.companyNumber = (String) comp.get('company_number');
             c.status = (String) comp.get('current_status');
-            // address may be nested under registered_address or address
+            // 登録住所がある場合はそのまま文字列化して格納
             c.rawAddress = comp.containsKey('registered_address') ? String.valueOf(comp.get('registered_address')) : null;
             c.source = 'OpenCorporates';
             out.add(c);
         }
+        // 変換済み候補リストを返却
         return out;
     }
 }
