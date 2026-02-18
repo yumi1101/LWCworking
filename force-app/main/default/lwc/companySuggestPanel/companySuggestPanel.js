@@ -43,6 +43,8 @@ export default class CompanySuggestPanel extends LightningElement {
 				{ name: `Mock Co ${seed} C`, jurisdictionCode: 'us_ca', companyNumber: 'MCK-003', status: null, rawAddress: 'San Francisco', source: 'Mock', statusLabel: '' }
 			];
 			this.selectedIndex = this.candidates.length ? 0 : undefined;
+			// show a toast so tester knows mock mode was used
+			this.toast('Mock data', `Mock results for "${seed}" loaded`, 'info');
 			this.loading = false;
 			return;
 		}
