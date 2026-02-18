@@ -30,20 +30,7 @@ export default class CompanySuggestPanel extends LightningElement {
 		// クライアント側でも最終的な文字数ガードを行う
 		if (!q || q.trim().length < MIN_CHARS) return;
 
-		// --- Mock mode for local testing ---
-		// ユーザが 'test' を入力するか 'mock:...' で始めるとダミー応答を返す
-		const qTrim = q.trim();
-		if (qTrim.toLowerCase() === 'test' || qTrim.toLowerCase().startsWith('mock:')) {
-			const seed = qTrim.toLowerCase().startsWith('mock:') ? qTrim.substring(5).trim() : qTrim;
-			this.candidates = [
-				{ name: `Mock Co ${seed} A`, jurisdictionCode: 'jp', companyNumber: 'MCK-001', status: 'active', rawAddress: 'Tokyo', source: 'Mock', statusLabel: ' • active' },
-				{ name: `Mock Co ${seed} B`, jurisdictionCode: 'jp', companyNumber: 'MCK-002', status: 'inactive', rawAddress: 'Osaka', source: 'Mock', statusLabel: ' • inactive' },
-				{ name: `Mock Co ${seed} C`, jurisdictionCode: 'us_ca', companyNumber: 'MCK-003', status: null, rawAddress: 'San Francisco', source: 'Mock', statusLabel: '' }
-			];
-			this.selectedIndex = this.candidates.length ? 0 : undefined;
-			this.loading = false;
-			return;
-		}
+        
 
 		// --- Mock mode for local testing ---
 		// ユーザが 'test' を入力するか 'mock:...' で始めるとダミー応答を返す
