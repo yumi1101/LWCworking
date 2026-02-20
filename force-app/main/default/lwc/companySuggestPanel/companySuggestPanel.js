@@ -13,6 +13,12 @@ export default class CompanySuggestPanel extends LightningElement {
 	timer;
 	selectedIndex;
 
+	connectedCallback() {
+		// show immediately when component is initialized in the page
+		console.log('[companySuggestPanel] connectedCallback - component initialized');
+		this.debugMsg = 'initialized';
+	}
+
 	handleInput(e) {
 		// 入力値を保持し、前回の検索予約があればキャンセルする
 		console.log('[companySuggestPanel] handleInput called, event:', e);
