@@ -3,6 +3,11 @@
 		<div class="slds-p-around_small">
 			<lightning-input type="search" label="会社名" placeholder="会社名を入力" oninput={handleInput} value={query}></lightning-input>
 
+			<!-- Debug: show last internal debug message so testers can see status without console -->
+			<template if:true={debugMsg}>
+				<div class="slds-m-top_small slds-text-color_weak">デバッグ: {debugMsg}</div>
+			</template>
+
 			<template if:true={loading}>
 				<div class="slds-m-top_small"><lightning-spinner alternative-text="検索中"></lightning-spinner></div>
 			</template>
