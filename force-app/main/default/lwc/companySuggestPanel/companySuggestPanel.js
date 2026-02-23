@@ -9,6 +9,8 @@ export default class CompanySuggestPanel extends LightningElement {
 	@track query = '';
 	@track candidates = [];
 	@track loading = false;
+	@track hasSearched = false;
+	@track searchError = '';
 	timer;
 	selectedIndex;
 
@@ -19,6 +21,8 @@ export default class CompanySuggestPanel extends LightningElement {
 		// 実質2文字未満のときは候補を消して検索しない
 		if ((this.query || '').replace(/\s+/g, '').length < MIN_CHARS) {
 			this.candidates = [];
+			this.hasSearched = false;
+			this.searchError = '';
 			return;
 		}
 		// 入力途中の連続呼び出しを避けるため、少し待ってから検索する
@@ -30,6 +34,8 @@ export default class CompanySuggestPanel extends LightningElement {
 		// クライアント側でも最終的な文字数ガードを行う
 		if (!q || q.trim().length < MIN_CHARS) return;
 		this.loading = true;
+		this.hasSearched = true;
+		this.searchError = '';
 		try {
 			// Apex経由で会社候補を取得する（件数は10件固定）
 			const res = await searchCompanies({ query: q, jurisdictionOpt: null, limitOpt: 10 });
@@ -45,7 +51,8 @@ export default class CompanySuggestPanel extends LightningElement {
 			}
 		} catch (err) {
 			// 通信・Apex例外はトースト表示して候補をクリアする
-			this.toast('検索に失敗しました', this.errorMessage(err), 'error');
+			this.searchError = this.errorMessage(err);
+			this.toast('検索に失敗しました', this.searchError, 'error');
 			this.candidates = [];
 		} finally {
 			// 成否にかかわらずローディング状態を解除する
@@ -53,9 +60,17 @@ export default class CompanySuggestPanel extends LightningElement {
 		}
 	}
 
+	get hasResults() {
+		return (this.candidates || []).length > 0;
+	}
+
+	get showNoResults() {
+		return this.hasSearched && !this.loading && !this.searchError && !this.hasResults;
+	}
+
 	handleSelect(e) {
 		const idx = e.currentTarget.dataset.idx;
-		if (!idx) return;
+		if (idx === undefined || idx === null) return;
 		const candidate = this.candidates[Number(idx)];
 		if (!candidate) return;
 		// 親コンポーネントへ選択会社を通知する

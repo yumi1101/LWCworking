@@ -19,17 +19,28 @@ public with sharing class CompanySuggestService {
 
         // 取得件数は1〜50件に正規化し、デフォルトは10件
         Integer perPage = (limitOpt == null) ? 10 : Math.max(1, Math.min(50, limitOpt));
+        // OpenCorporates APIトークン（Custom Label）を取得
+        String apiToken = Label.OpenCorporatesApiToken;
+        apiToken = (apiToken == null) ? null : apiToken.trim();
+        if (String.isBlank(apiToken) && !Test.isRunningTest()) {
+            throw new AuraHandledException('OpenCorporates APIトークンが未設定です。');
+        }
+        if (String.isBlank(apiToken) && Test.isRunningTest()) {
+            apiToken = 'DUMMY_TOKEN';
+        }
         // 検索条件をURLエンコードしてOpenCorporates検索エンドポイントを構築
         String q = EncodingUtil.urlEncode(query.trim(), 'UTF-8');
         String endpoint = 'callout:OpenCorporates/v0.4/companies/search?q=' + q + '&per_page=' + String.valueOf(perPage);
         if (!String.isBlank(jurisdictionOpt)) {
             endpoint += '&jurisdiction_code=' + EncodingUtil.urlEncode(jurisdictionOpt, 'UTF-8');
         }
+        endpoint += '&api_token=' + EncodingUtil.urlEncode(apiToken, 'UTF-8');
 
         // 外部API呼び出しのHTTPリクエストを準備
         HttpRequest req = new HttpRequest();
         req.setMethod('GET');
         req.setEndpoint(endpoint);
+        req.setHeader('X-API-TOKEN', apiToken);
         req.setTimeout(10000);
 
         Http http = new Http();
@@ -37,7 +48,6 @@ public with sharing class CompanySuggestService {
         try {
             res = http.send(req);
         } catch (Exception e) {
-            // 詳細は隠し、画面向けに扱いやすいメッセージで返す
             throw new AuraHandledException('通信に失敗しました。');
         }
 
