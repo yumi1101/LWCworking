@@ -62,11 +62,12 @@ export default class CompanySuggestPanel extends LightningElement {
 			console.log('[companySuggestPanel] Mock mode triggered!');
 			this.debugMsg = `mock:${seed}`;
 			const seed = qTrim.toLowerCase().startsWith('mock:') ? qTrim.substring(5).trim() : qTrim;
-			this.candidates = [
+			const mockCandidates = [
 				{ name: `Mock Co ${seed} A`, jurisdictionCode: 'jp', companyNumber: 'MCK-001', status: 'active', rawAddress: 'Tokyo', source: 'Mock', statusLabel: ' • active' },
 				{ name: `Mock Co ${seed} B`, jurisdictionCode: 'jp', companyNumber: 'MCK-002', status: 'inactive', rawAddress: 'Osaka', source: 'Mock', statusLabel: ' • inactive' },
 				{ name: `Mock Co ${seed} C`, jurisdictionCode: 'us_ca', companyNumber: 'MCK-003', status: null, rawAddress: 'San Francisco', source: 'Mock', statusLabel: '' }
 			];
+			this.candidates = mockCandidates;
 			this.selectedIndex = this.candidates.length ? 0 : undefined;
 			console.log('[companySuggestPanel] Mock candidates set:', this.candidates);
 			this.debugMsg = `mock set ${this.candidates.length}`;
