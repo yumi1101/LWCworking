@@ -11,8 +11,15 @@ export default class CompanySuggestPanel extends LightningElement {
 	@track loading = false;
 	@track hasSearched = false;
 	@track searchError = '';
+	@track debugMsg = '';
 	timer;
 	selectedIndex;
+
+	connectedCallback() {
+		this.debugMsg = 'connectedCallback: CompanySuggestPanel loaded (' + new Date().toLocaleString() + ')';
+		// eslint-disable-next-line no-console
+		console.log(this.debugMsg);
+	}
 
 	handleInput(e) {
 		// 入力値を保持し、前回の検索予約があればキャンセルする
