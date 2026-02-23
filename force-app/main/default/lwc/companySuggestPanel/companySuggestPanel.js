@@ -9,76 +9,26 @@ export default class CompanySuggestPanel extends LightningElement {
 	@track query = '';
 	@track candidates = [];
 	@track loading = false;
-	@track debugMsg = '';
 	timer;
 	selectedIndex;
 
-	connectedCallback() {
-		// show immediately when component is initialized in the page
-		console.log('[companySuggestPanel] connectedCallback - component initialized');
-		this.debugMsg = 'initialized';
-	}
-
 	handleInput(e) {
 		// 入力値を保持し、前回の検索予約があればキャンセルする
-		console.log('[companySuggestPanel] handleInput called, event:', e, 'target:', e.target);
 		this.query = e.target.value || '';
-		console.log('[companySuggestPanel] handleInput - query set to:', this.query);
-		this.debugMsg = `[INPUT] ${this.query}`;
 		clearTimeout(this.timer);
 		// 実質2文字未満のときは候補を消して検索しない
-		const trimmedLength = (this.query || '').replace(/\s+/g, '').length;
-		console.log('[companySuggestPanel] trimmed length:', trimmedLength, 'MIN_CHARS:', MIN_CHARS);
-		this.debugMsg = `len:${trimmedLength}`;
-		if (trimmedLength < MIN_CHARS) {
-			console.log('[companySuggestPanel] below MIN_CHARS, clearing candidates');
+		if ((this.query || '').replace(/\s+/g, '').length < MIN_CHARS) {
 			this.candidates = [];
 			return;
 		}
 		// 入力途中の連続呼び出しを避けるため、少し待ってから検索する
-		console.log('[companySuggestPanel] setting timeout for doSearch');
-		this.debugMsg = 'waiting to search...';
 		this.timer = setTimeout(() => this.doSearch(), DEBOUNCE_MS);
 	}
 
 	async doSearch() {
 		const q = this.query;
-		console.log('[companySuggestPanel] doSearch started with query:', q);
-		this.debugMsg = `doSearch: ${q}`;
 		// クライアント側でも最終的な文字数ガードを行う
-		if (!q || q.trim().length < MIN_CHARS) {
-			console.log('[companySuggestPanel] query too short or empty, returning');
-			return;
-		}
-
-        
-
-		// --- Mock mode for local testing ---
-		// ユーザが 'test' を入力するか 'mock:...' で始めるとダミー応答を返す
-		const qTrim = q.trim();
-		console.log('[companySuggestPanel] qTrim:', qTrim, 'toLowerCase:', qTrim.toLowerCase());
-		this.debugMsg = `qTrim:${qTrim}`;
-		if (qTrim.toLowerCase() === 'test' || qTrim.toLowerCase().startsWith('mock:')) {
-			console.log('[companySuggestPanel] Mock mode triggered!');
-			const seed = qTrim.toLowerCase().startsWith('mock:') ? qTrim.substring(5).trim() : qTrim;
-			console.log('[companySuggestPanel] seed:', seed);
-			const mockCandidates = [
-				{ name: `Mock Co ${seed} A`, jurisdictionCode: 'jp', companyNumber: 'MCK-001', status: 'active', rawAddress: 'Tokyo', source: 'Mock', statusLabel: ' • active' },
-				{ name: `Mock Co ${seed} B`, jurisdictionCode: 'jp', companyNumber: 'MCK-002', status: 'inactive', rawAddress: 'Osaka', source: 'Mock', statusLabel: ' • inactive' },
-				{ name: `Mock Co ${seed} C`, jurisdictionCode: 'us_ca', companyNumber: 'MCK-003', status: null, rawAddress: 'San Francisco', source: 'Mock', statusLabel: '' }
-			];
-			console.log('[companySuggestPanel] mockCandidates created:', mockCandidates);
-			this.candidates = [...mockCandidates]; // Use spread to ensure reactivity
-			console.log('[companySuggestPanel] this.candidates after assignment:', this.candidates, 'length:', this.candidates.length);
-			this.selectedIndex = this.candidates.length ? 0 : undefined;
-			console.log('[companySuggestPanel] Mock candidates set:', this.candidates);
-			this.debugMsg = `mock set ${this.candidates.length} items`;
-			// show a toast so tester knows mock mode was used
-			this.toast('Mock data', `Mock results for "${seed}" loaded`, 'info');
-			this.loading = false;
-			console.log('[companySuggestPanel] Mock mode complete, returning');
-			return;
-		}
+		if (!q || q.trim().length < MIN_CHARS) return;
 		this.loading = true;
 		try {
 			// Apex経由で会社候補を取得する（件数は10件固定）
@@ -112,18 +62,6 @@ export default class CompanySuggestPanel extends LightningElement {
 		this.dispatchEvent(new CustomEvent('companyselect', {
 			detail: { company: candidate }, bubbles: true, composed: true
 		}));
-	}
-
-	// Debug method to manually trigger search without relying on oninput event
-	debugTriggerSearch() {
-		console.log('[companySuggestPanel] debugTriggerSearch called manually');
-		this.query = 'test';
-		this.debugMsg = '[DEBUG BUTTON] triggering doSearch with test';
-		this.doSearch();
-		// Log state after doSearch call
-		setTimeout(() => {
-			console.log('[companySuggestPanel] After doSearch - candidates:', this.candidates, 'length:', this.candidates.length, 'debugMsg:', this.debugMsg);
-		}, 100);
 	}
 
 	toast(title, message, variant) {

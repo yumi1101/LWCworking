@@ -3,32 +3,22 @@
 		<div class="slds-p-around_small">
 			<lightning-input type="search" label="会社名" placeholder="会社名を入力" oninput={handleInput} value={query}></lightning-input>
 
-			<!-- Debug: show last internal debug message so testers can see status without console -->
-			<template if:true={debugMsg}>
-				<div class="slds-m-top_small slds-text-color_weak">デバッグ: {debugMsg}</div>
-			</template>
-
-			<!-- Debug button for manual testing (bypasses input event) -->
-			<div class="slds-m-top_small">
-				<button class="slds-button slds-button_brand" onclick={debugTriggerSearch}>デバッグ: モック実行</button>
-			</div>
-
 			<template if:true={loading}>
 				<div class="slds-m-top_small"><lightning-spinner alternative-text="検索中"></lightning-spinner></div>
 			</template>
 
-			<template if:true={candidates.length}>
-				<ul class="slds-list_dotted slds-m-top_small">
-					<template for:each={candidates} for:item="cand" for:index="idx">
-						<li key={cand.companyNumber} data-idx={idx} class="slds-p-vertical_x-small" onclick={handleSelect}>
-							<strong>{cand.name}</strong>
-							<div class="slds-text-body_small">{cand.jurisdictionCode} • {cand.companyNumber}{cand.statusLabel}</div>
-						</li>
-					</template>
-				</ul>
-			</template>
-			<template if:false={candidates.length}>
-				<template if:true={candidates}>
+			<template if:true={candidates}>
+				<template if:true={candidates.length}>
+					<ul class="slds-list_dotted slds-m-top_small">
+						<template for:each={candidates} for:item="cand" for:index="idx">
+							<li key={cand.companyNumber} data-idx={idx} class="slds-p-vertical_x-small" onclick={handleSelect}>
+								<strong>{cand.name}</strong>
+								<div class="slds-text-body_small">{cand.jurisdictionCode} • {cand.companyNumber}{cand.statusLabel}</div>
+							</li>
+						</template>
+					</ul>
+				</template>
+				<template if:false={candidates.length}>
 					<div class="slds-m-top_small">該当する会社は見つかりませんでした。</div>
 				</template>
 			</template>
