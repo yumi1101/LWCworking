@@ -60,17 +60,19 @@ export default class CompanySuggestPanel extends LightningElement {
 		this.debugMsg = `qTrim:${qTrim}`;
 		if (qTrim.toLowerCase() === 'test' || qTrim.toLowerCase().startsWith('mock:')) {
 			console.log('[companySuggestPanel] Mock mode triggered!');
-			this.debugMsg = `mock:${seed}`;
 			const seed = qTrim.toLowerCase().startsWith('mock:') ? qTrim.substring(5).trim() : qTrim;
+			console.log('[companySuggestPanel] seed:', seed);
 			const mockCandidates = [
 				{ name: `Mock Co ${seed} A`, jurisdictionCode: 'jp', companyNumber: 'MCK-001', status: 'active', rawAddress: 'Tokyo', source: 'Mock', statusLabel: ' • active' },
 				{ name: `Mock Co ${seed} B`, jurisdictionCode: 'jp', companyNumber: 'MCK-002', status: 'inactive', rawAddress: 'Osaka', source: 'Mock', statusLabel: ' • inactive' },
 				{ name: `Mock Co ${seed} C`, jurisdictionCode: 'us_ca', companyNumber: 'MCK-003', status: null, rawAddress: 'San Francisco', source: 'Mock', statusLabel: '' }
 			];
-			this.candidates = mockCandidates;
+			console.log('[companySuggestPanel] mockCandidates created:', mockCandidates);
+			this.candidates = [...mockCandidates]; // Use spread to ensure reactivity
+			console.log('[companySuggestPanel] this.candidates after assignment:', this.candidates, 'length:', this.candidates.length);
 			this.selectedIndex = this.candidates.length ? 0 : undefined;
 			console.log('[companySuggestPanel] Mock candidates set:', this.candidates);
-			this.debugMsg = `mock set ${this.candidates.length}`;
+			this.debugMsg = `mock set ${this.candidates.length} items`;
 			// show a toast so tester knows mock mode was used
 			this.toast('Mock data', `Mock results for "${seed}" loaded`, 'info');
 			this.loading = false;
@@ -118,6 +120,10 @@ export default class CompanySuggestPanel extends LightningElement {
 		this.query = 'test';
 		this.debugMsg = '[DEBUG BUTTON] triggering doSearch with test';
 		this.doSearch();
+		// Log state after doSearch call
+		setTimeout(() => {
+			console.log('[companySuggestPanel] After doSearch - candidates:', this.candidates, 'length:', this.candidates.length, 'debugMsg:', this.debugMsg);
+		}, 100);
 	}
 
 	toast(title, message, variant) {
