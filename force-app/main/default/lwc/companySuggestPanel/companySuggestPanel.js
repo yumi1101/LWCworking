@@ -21,10 +21,10 @@ export default class CompanySuggestPanel extends LightningElement {
 
 	handleInput(e) {
 		// 入力値を保持し、前回の検索予約があればキャンセルする
-		console.log('[companySuggestPanel] handleInput called, event:', e);
+		console.log('[companySuggestPanel] handleInput called, event:', e, 'target:', e.target);
 		this.query = e.target.value || '';
 		console.log('[companySuggestPanel] handleInput - query set to:', this.query);
-		this.debugMsg = `input: ${this.query}`;
+		this.debugMsg = `[INPUT] ${this.query}`;
 		clearTimeout(this.timer);
 		// 実質2文字未満のときは候補を消して検索しない
 		const trimmedLength = (this.query || '').replace(/\s+/g, '').length;
@@ -109,6 +109,14 @@ export default class CompanySuggestPanel extends LightningElement {
 		this.dispatchEvent(new CustomEvent('companyselect', {
 			detail: { company: candidate }, bubbles: true, composed: true
 		}));
+	}
+
+	// Debug method to manually trigger search without relying on oninput event
+	debugTriggerSearch() {
+		console.log('[companySuggestPanel] debugTriggerSearch called manually');
+		this.query = 'test';
+		this.debugMsg = '[DEBUG BUTTON] triggering doSearch with test';
+		this.doSearch();
 	}
 
 	toast(title, message, variant) {

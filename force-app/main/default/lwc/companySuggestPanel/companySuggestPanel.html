@@ -8,6 +8,11 @@
 				<div class="slds-m-top_small slds-text-color_weak">デバッグ: {debugMsg}</div>
 			</template>
 
+			<!-- Debug button for manual testing (bypasses input event) -->
+			<div class="slds-m-top_small">
+				<button class="slds-button slds-button_brand" onclick={debugTriggerSearch}>デバッグ: モック実行</button>
+			</div>
+
 			<template if:true={loading}>
 				<div class="slds-m-top_small"><lightning-spinner alternative-text="検索中"></lightning-spinner></div>
 			</template>
